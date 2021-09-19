@@ -1,1 +1,46 @@
-<p>movies works!</p>
+<div class="form-group" style="    display: flex;
+justify-content: end;
+padding: 1% 1% 2% 6%;">
+  <input type="search" class="form-control" style="width:300px;" [(ngModel)]='term'>
+  <span class="loading form-control-feedback" ng-show="isLoading"></span>
+</div>
+<div *ngIf= ' term.length > 2'>
+  <div class="row" *ngIf="articles   " style="margin-top: 1%;">
+
+    <div class="col-sm-4" style="margin-top: 2vw;" *ngFor="let article of articles| filter:term let i=index">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{article.title}}</h5>
+          <p class="card-text">{{article.overview}}</p>
+          <a href="#" class="btn btn-primary" (click)=" onReadMoreClick(i)">Go somewhere</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="row" *ngIf="articles  && term.length == 0 " style="margin-top: 1%;">
+
+  <div class="col-sm-4" style="margin-top: 2vw;" *ngFor="let article of articles | filter:term let i=index">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{article.title}}</h5>
+        <p class="card-text">{{article.overview}}</p>
+        <!-- <a  class="btn btn-primary" (click)=" onReadMoreClick(i)">Go somewhere</a> -->
+        <a  class="btn btn-primary"(click)="openModal('custom-modal-2')">Go Modal</a>
+        <jw-modal id="custom-modal-2">
+          <button type="button" class="close btn btn-warning float-right ml-2 " aria-label="Close" (click)="closeModal('custom-modal-2');">
+            <span aria-hidden="true">&times;</span>
+          </button>
+
+          <h1>A Custom Modal Window!</h1>
+          <!-- <p>Home page text: <input type="text" [(ngModel)]="bodyText" /></p> -->
+
+      </jw-modal>
+      </div>
+    </div>
+  </div>
+
+</div>
+

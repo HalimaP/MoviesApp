@@ -1,9 +1,11 @@
-import { Component, ElementRef, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Pipe, PipeTransform, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fromEvent, Subscription } from 'rxjs';
+import { ModalComponent } from '../modal/modal.component';
 import { ModalService } from '../modal/modal.service';
 import { MoviesService } from '../service/movies.service';
-
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs/operators';
 @Component({
   selector: 'app-movies',
   templateUrl: './movies.component.html',
@@ -12,19 +14,19 @@ import { MoviesService } from '../service/movies.service';
 
 export class MoviesComponent implements OnInit {
 
-
+  @ViewChild('SEARCH') SEARCH: ElementRef;
 
 moviesSub: Subscription;
 articles;
-items ="jahhshshhshs";
 page;
 pageSize;
-sorted = new Date();
+sorted : Date = new Date();
 
-searchTerm: string;
+lastSearchTerm: string;
 term = '';
 isLoading=true
-  constructor(private moviesService: MoviesService, private route: ActivatedRoute,private router:Router, private modalService: ModalService) { }
+
+  constructor(private moviesService: MoviesService, private route: ActivatedRoute,private router:Router, private modalService: NgbModal) { }
 
   ngOnInit() {
     this.moviesSub = this.moviesService.movies.subscribe((data =>{
@@ -33,26 +35,42 @@ isLoading=true
       console.log(this.articles);
     }))
 
-  this.getArticles(30);
+  this.getArticles();
 
-this.moviesService.fetchMoreNews()
+// this.moviesService.fetchMoreNews()
 console.log(this.moviesService.getArticleByTitle(this.articles))
   }
 
-  ngOnDestroy(){
-    if(this.moviesSub){
-      this.moviesSub.unsubscribe();
+
+  ngAfterViewInit(){
+    fromEvent(this.SEARCH.nativeElement, 'keyup')
+    .pipe(
+      filter(Boolean),
+      debounceTime(250), //in ms
+      distinctUntilChanged(),
+      tap((text)=> {
+// this.loadMore()
+        this.page =1;
+        this.lastSearchTerm = this.SEARCH.nativeElement.value;
+        this.moviesService.fetchMoreNews(this.pageSize, this.page, this.lastSearchTerm, true).subscribe();
+        // this.loadMore()
+        console.log(this.SEARCH.nativeElement.value)
+      })
+    )
+    .subscribe()}
+    ngOnDestroy(){
+      if(this.moviesSub){
+        this.moviesSub.unsubscribe();
+      }
     }
+  open(name,lastname) {
+    const modalRef = this.modalService.open(ModalComponent);
+    modalRef.componentInstance.name = name;
+    modalRef.componentInstance.lastname = lastname;
+
   }
 
-  openModal(id: string) {
-    this.modalService.open(id);
-}
-
-closeModal(id: string) {
-    this.modalService.close(id);
-}
-getArticles(results){
+getArticles(){
 if(this.articles){
 
 }
@@ -72,14 +90,10 @@ onReadMoreClick(index){
     this.page = this.page +1;
 
 
-    // this.moviesService.fetchMoreNews(this.pageSize, this.page,this.lastSearchTerm).subscribe((data)=>{
-    //   console.log('Added page +');
-    // this.sorted =this.items.sort((x, y) => +new Date(x.createdAt) - +new Date(y.createdAt))
+    this.moviesService.fetchMoreNews(this.pageSize, this.page,this.lastSearchTerm).subscribe((data)=>{
+      console.log('Added page +');
+    this.sorted =this.articles.sort((x, y) => +new Date(x.release_date) - +new Date(y.release_date))
 
-    // });
-  }
-  WordCounter (str: string) {
-    var words = str.split(" ").length;
-    return words;
+    });
   }
 }

@@ -11,27 +11,30 @@ export class MoviesService {
   public showSpinner: BehaviorSubject<boolean> = new BehaviorSubject(false);
   constructor( private httpClient: HttpClient) { }
   public getMovies(){
-    return this.httpClient.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${this.apiKey}&language=en-US`).pipe(
+    return this.httpClient.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${this.apiKey}&language=en-US&total_pages=30`).pipe(
       take(1),
       map((data: any)=>{
-        this.movies.next(data.results);
+        this.movies.next(data['results']);
         console.log(data.results)
-        return data.results
+        // return data.results
       }
     )
     );
   }
 
-  fetchMoreNews(pageSize: number = 20, page: number = 1, searchTitle:string ="Given", clearOldData: boolean = false){
-    return this.httpClient.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${this.apiKey}&language=en-US&page=1&title=${searchTitle}&page=${page}&pageSize=${pageSize}`).pipe(
+  fetchMoreNews(pageSize: number = 30, page=2 , searchTitle:string ="Spirited Away", clearOldData: boolean = false){
+    return this.httpClient.get(`https://api.themoviedb.org/3/movie/top_rated?api_key=${this.apiKey}&language=en-US&page=1&title=${searchTitle}&pageSize=${pageSize}`).pipe(
     take(1),
     map((moviesData:any)=>{
       if(clearOldData){
-        this.movies.next(moviesData);
+        this.movies.next(moviesData['results']);
       }
-      let oldNews:any = this.movies;
-      this.movies.next(oldNews.concat(moviesData));
+
       console.log(moviesData.results)
+      let oldMovies:any = this.movies.value;
+      console.log(this.movies.value)
+      this.movies.next(oldMovies.value.concat(moviesData));
+      console.log(moviesData)
     })
     );
     }

@@ -9,7 +9,7 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ModalComponent } from './modal/modal.component';
 import { Ng2SearchPipeModule } from 'ng2-search-filter';
 import { ReadMoreComponent } from './movies/read-more/read-more.component';
-
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
@@ -27,11 +27,13 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     ReactiveFormsModule,
     Ng2SearchPipeModule,
+    NgbModule
 
 
 
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ModalComponent]
 })
 export class AppModule { }
